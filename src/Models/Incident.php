@@ -8,6 +8,7 @@ use Cachet\Events\Incidents\IncidentCreated;
 use Cachet\Events\Incidents\IncidentDeleted;
 use Cachet\Events\Incidents\IncidentUpdated;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -48,6 +49,15 @@ class Incident extends Model
         'occurred_at',
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        self::creating(function (Incident $model) {
+            $model->guid = Str::uuid();
+        });
+    }
+
     /**
      * Get the components impacted by this incident.
      */
@@ -81,9 +91,9 @@ class Incident extends Model
         return $query->where('status', $status);
     }
 
-    public function scopeUnresolved(Builder $builder): Builder
+    public function scopeUnresolved(Builder $query): Builder
     {
-        return $this->whereIn('status', IncidentStatusEnum::unresolved());
+        return $query->whereIn('status', IncidentStatusEnum::unresolved());
     }
 
     /**
@@ -92,6 +102,11 @@ class Incident extends Model
     public function scopeStickied(Builder $query): Builder
     {
         return $query->where('stickied', true);
+    }
+
+    public function timestamp(): Attribute
+    {
+        return Attribute::get(fn () => $this->occurred_at ?: $this->created_at);
     }
 
     /**

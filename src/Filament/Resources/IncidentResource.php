@@ -14,7 +14,6 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Table;
-use Illuminate\Support\Str;
 
 class IncidentResource extends Resource
 {
@@ -75,12 +74,6 @@ class IncidentResource extends Resource
                     Forms\Components\Toggle::make('notifications')
                         ->label(__('Send notifications to subscribers.'))
                         ->required(),
-                    Forms\Components\TextInput::make('guid')
-                        ->required()
-                        ->default(fn () => (string) Str::uuid())
-                        ->unique(ignoreRecord: true)
-                        ->maxLength(36)
-                        ->hidden(),
                 ]),
             ]);
     }
